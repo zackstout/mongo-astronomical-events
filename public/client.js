@@ -25,4 +25,26 @@ $(document).ready(() => {
       }
     });
   });
+
+  $('#submit2').on('click', () => {
+    console.log($('#type').val());
+
+    $('.output2').html('');
+
+    $.ajax({
+      type: "GET",
+      url: `/fromnow?type=${$('#type').val()}`,
+      success: (data) => {
+        console.log(data);
+        data.forEach(d => {
+          $('.output2').append(`<ul>
+            <li>Date: ${d.date} </li>
+            <li>Type: ${d.type} </li>
+            <li>Description: ${d.desc} </li>
+            </ul>`);
+        });
+
+      }
+    });
+  });
 });

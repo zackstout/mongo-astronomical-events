@@ -8,7 +8,8 @@ var AstroSchema = new Schema({
   desc: String,
   year: Number,
   month: Number,
-  day: Number
+  day: Number,
+  timestamp: Number
 });
 
 module.exports = mongoose.model("Astro", AstroSchema);
