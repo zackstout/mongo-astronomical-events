@@ -1,18 +1,18 @@
 
-var express = require('express');
-var app = express();
-var port = process.env.PORT || 1745;
-var bodyParser = require('body-parser');
-var fs = require('fs');
-var csv = require('fast-csv');
-var db = require('./models');
-var mongoose = require('mongoose');
-var databaseUrl = '';
+const express = require('express');
+const app = express();
+const port = process.env.PORT || 1745;
+const bodyParser = require('body-parser');
+const fs = require('fs');
+const csv = require('fast-csv');
+const db = require('./models');
+const mongoose = require('mongoose');
+let databaseUrl = '';
 const moment = require('moment');
 
 const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-var allCsvs = [];
-for (var i=2014; i < 2031; i++) {
+let allCsvs = [];
+for (let i=2014; i < 2031; i++) {
   allCsvs.push(String(i));
 }
 
@@ -42,6 +42,8 @@ mongoose.connection.on('error', function() {
 
 //initiate connection:
 mongoose.connect(databaseUrl);
+
+// ================================================================================================================
 
 // I'm falling in love with this:
 function generateDB() {
@@ -88,9 +90,7 @@ function generateDB() {
 
 // generateDB();
 
-// db.Astro.find({"date" : {$regex: ".*2014.*"}})
-//   .then(res => console.log(res))
-//   .catch(err => console.log(err));
+// ================================================================================================================
 
 app.get('/astro', (req, res) => {
   db.Astro.find({"date" : {$regex: `.*${req.query.year}.*`}, "type" : {$regex: `.*${req.query.search}.*`}})
@@ -104,8 +104,8 @@ app.get('/astro', (req, res) => {
     });
 });
 
-app.get('/fromnow', (req, res) => {
 
+app.get('/fromnow', (req, res) => {
   const current = moment().format('x');
   console.log(current, req.query.type);
 
