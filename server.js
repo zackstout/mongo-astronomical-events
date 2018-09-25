@@ -10,6 +10,7 @@ const mongoose = require('mongoose');
 let databaseUrl = '';
 const moment = require('moment');
 
+
 const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 let allCsvs = [];
 for (let i=2014; i < 2031; i++) {
@@ -27,9 +28,9 @@ app.use(express.static('public'));
 
 // NOTE: You do NOT have to create the database manually -- mongo handles it:
 if (process.env.MONGODB_URI) {
-    databaseUrl = process.env.MONGODB_URI;
+  databaseUrl = process.env.MONGODB_URI;
 } else {
-    databaseUrl = 'mongodb://localhost:27017/astro';
+  databaseUrl = 'mongodb://localhost:27017/astro';
 }
 
 mongoose.connection.on('connected', function() {
@@ -48,44 +49,44 @@ mongoose.connect(databaseUrl);
 // I'm falling in love with this:
 function generateDB() {
   allCsvs.forEach(file => {
-      var stream = fs.createReadStream(`csvs/${file}.csv`);
+    var stream = fs.createReadStream(`csvs/${file}.csv`);
 
-      var csvStream = csv()
-      // This fires for every row in the csv:
-      .on("data", function(data){
-        const year = parseInt(file);
-        const month = months.indexOf(data[0].slice(0, data[0].indexOf(' '))) + 1;
-        const day = parseInt(data[0].slice(data[0].indexOf(' ') + 1));
-        let new_month = month.toString();
-        while (new_month.length < 2) {
-          new_month = '0' + new_month;
-        }
-        const full_date = `${new_month}-${day}-${year}`;
-        const moment_date = moment(full_date, 'MM-DD-YYYY').format('x');
+    var csvStream = csv()
+    // This fires for every row in the csv:
+    .on("data", function(data){
+      const year = parseInt(file);
+      const month = months.indexOf(data[0].slice(0, data[0].indexOf(' '))) + 1;
+      const day = parseInt(data[0].slice(data[0].indexOf(' ') + 1));
+      let new_month = month.toString();
+      while (new_month.length < 2) {
+        new_month = '0' + new_month;
+      }
+      const full_date = `${new_month}-${day}-${year}`;
+      const moment_date = moment(full_date, 'MM-DD-YYYY').format('x');
 
-        // Create the Astro document:
-        db.Astro.create({
-          date: data[0] + ' ' + file,
-          type: data[1],
-          desc: data[2],
-          year: year,
-          month: month,
-          day: day,
-          timestamp: moment_date
-        })
-        .then(astro => {
-          console.log(astro);
-        })
-        .catch(err => {
-          console.log(err.message);
-        });
+      // Create the Astro document:
+      db.Astro.create({
+        date: data[0] + ' ' + file,
+        type: data[1],
+        desc: data[2],
+        year: year,
+        month: month,
+        day: day,
+        timestamp: moment_date
       })
-      .on("end", function(){
-        console.log("done");
+      .then(astro => {
+        console.log(astro);
+      })
+      .catch(err => {
+        console.log(err.message);
       });
-
-      stream.pipe(csvStream);
+    })
+    .on("end", function(){
+      console.log("done");
     });
+
+    stream.pipe(csvStream);
+  });
 }
 
 // generateDB();
@@ -94,14 +95,14 @@ function generateDB() {
 
 app.get('/astro', (req, res) => {
   db.Astro.find({"date" : {$regex: `.*${req.query.year}.*`}, "type" : {$regex: `.*${req.query.search}.*`}})
-    .sort({"year" : 1, "month" : 1, "day": 1})
-    .then(data => {
-      // console.log(data);
-      res.json(data);
-    })
-    .catch(err => {
-      console.log(err);
-    });
+  .sort({"year" : 1, "month" : 1, "day": 1})
+  .then(data => {
+    // console.log(data);
+    res.json(data);
+  })
+  .catch(err => {
+    console.log(err);
+  });
 });
 
 
@@ -110,14 +111,57 @@ app.get('/fromnow', (req, res) => {
   console.log(current, req.query.type);
 
   db.Astro.find({"type" : {$regex: `.*${req.query.type}.*`}, "timestamp": {$gt: current}})
-    .sort({"year" : 1, "month" : 1, "day": 1})
-    .then(data => {
-      res.json(data);
-    })
-    .catch(err => {
-      console.log(err);
-    });
+  .sort({"year" : 1, "month" : 1, "day": 1})
+  .then(data => {
+    res.json(data);
+  })
+  .catch(err => {
+    console.log(err);
+  });
 });
+
+// a POST request, really:
+app.get('/remind', (req, res) => {
+  db.Astro.find({ "_id": req.query.id })
+  .then(data => {
+    data[0].remind = true;
+    data[0].save(err => {
+      // console.log(err);
+      // console.log("reminding for...", data);
+
+      // setReminders();
+    });
+
+  });
+});
+
+
+// maybe ....the best way might be to have a bash script that runs this every day.
+// We want a 24-hour reminder and a 48-hour reminder, methinks.
+function setReminders() {
+  db.Astro.find({ "remind": true })
+  .then(data => {
+    // console.log("data now be...", data);
+    const current = moment().format('x');
+
+    data.forEach(d => {
+      const diff = d.timestamp - current;
+      console.log("diff is...", diff);
+
+      // Send 24-hour notice:
+      if (diff < 24 * 60 * 60 * 1000) {
+
+      }
+      // Send 48-hour notice:
+       else if (diff < 48 * 60 * 60 * 1000) {
+
+      }
+    });
+  });
+}
+
+
+setReminders();
 
 
 app.listen(port, function (req, res) {

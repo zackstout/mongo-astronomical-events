@@ -41,10 +41,29 @@ $(document).ready(() => {
             <li>Date: ${d.date} </li>
             <li>Type: ${d.type} </li>
             <li>Description: ${d.desc} </li>
-            </ul>`);
+            </ul>
+            <p>
+            <button data-id=${d._id} class='remind'>Remind me</button>
+            </p>`);
         });
 
       }
+    });
+  });
+
+
+  $(document).on('click', '.remind', function() {
+
+    var data_id = $(this).attr('data-id');
+    $.ajax({
+      type: "GET",
+      url: `/remind?id=${data_id}`,
+      success: (data) => {
+        console.log('ahoy hoy!');
+
+        
+      }
+
     });
   });
 });

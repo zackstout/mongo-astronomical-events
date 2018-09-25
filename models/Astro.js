@@ -9,7 +9,8 @@ var AstroSchema = new Schema({
   year: Number,
   month: Number,
   day: Number,
-  timestamp: Number
+  timestamp: Number,
+  remind: Boolean,
 });
 
 module.exports = mongoose.model("Astro", AstroSchema);
