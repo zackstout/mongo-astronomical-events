@@ -9,7 +9,21 @@ const db = require('./models');
 const mongoose = require('mongoose');
 let databaseUrl = '';
 const moment = require('moment');
+const cron = require("node-cron");
+const nodemailer = require('nodemailer');
+const dotenv = require('dotenv').config();
 
+var transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.GOOGLE_EMAIL,
+    pass: process.env.GOOGLE_PASSWORD
+  },
+});
+
+cron.schedule("0 8 * * *", () => {
+  setReminders();
+});
 
 const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 let allCsvs = [];
@@ -136,6 +150,8 @@ app.get('/remind', (req, res) => {
 });
 
 
+
+
 // maybe ....the best way might be to have a bash script that runs this every day.
 // We want a 24-hour reminder and a 48-hour reminder, methinks.
 function setReminders() {
@@ -151,10 +167,39 @@ function setReminders() {
       // Send 24-hour notice:
       if (diff < 24 * 60 * 60 * 1000) {
 
+        const mailOptions = {
+          from: 'zackstout@gmail.com',
+          to: 'zackstout@gmail.com',
+          subject: `Astro (24-hour) Reminder for ${d.type}`,
+          html: `Ahoy! <p>On ${d.date}, we should have a gorgeous ${d.type}! Enjoy yourself!`
+        };
+
+        transporter.sendMail(mailOptions, function(error, info){
+          if (error) {
+            console.log(error);
+          } else {
+            console.log('Email sent: ' + info.response);
+          }
+        });
+
       }
       // Send 48-hour notice:
-       else if (diff < 48 * 60 * 60 * 1000) {
+      else if (diff < 48 * 60 * 60 * 1000) {
 
+        const mailOptions = {
+          from: 'zackstout@gmail.com',
+          to: 'zackstout@gmail.com',
+          subject: `Astro (48-hour) Reminder for ${d.type}`,
+          html: `Ahoy! <p>On ${d.date}, we should have a gorgeous ${d.type}! Enjoy yourself!`
+        };
+
+        transporter.sendMail(mailOptions, function(error, info){
+          if (error) {
+            console.log(error);
+          } else {
+            console.log('Email sent: ' + info.response);
+          }
+        });
       }
     });
   });
