@@ -1,6 +1,6 @@
 
 # Astronomical Events
-Using Mongo to store and then make queries on some [info](http://www.seasky.org/astronomy/astronomy-calendar-current.html) I've scraped about astronomical phenomena. The code I used to scrape the info can be found [here](https://github.com/zackstout/astronomical-calendar).
+Using Mongo to store and then make queries on some [info](http://www.seasky.org/astronomy/astronomy-calendar-current.html) I've scraped about astronomical phenomena. The code I used to scrape the info can be found [here](https://github.com/zackstout/astronomical-calendar). I use it to send myself reminder emails about events so I don't forget them.
 
 ## Getting started:
 You'll need to `clone` or download this repo and then uncomment the `generateDB()` function call in `server.js`. This generates the database; you need only run it once.

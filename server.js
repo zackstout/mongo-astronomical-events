@@ -21,6 +21,7 @@ var transporter = nodemailer.createTransport({
   },
 });
 
+// Should be every day at 8 am:
 cron.schedule("0 8 * * *", () => {
   setReminders();
 });
@@ -142,7 +143,7 @@ app.get('/remind', (req, res) => {
     data[0].save(err => {
       // console.log(err);
       // console.log("reminding for...", data);
-
+      console.log("Saved, master!");
       // setReminders();
     });
 
@@ -150,7 +151,7 @@ app.get('/remind', (req, res) => {
 });
 
 
-
+// ================================================================================================================
 
 // maybe ....the best way might be to have a bash script that runs this every day.
 // We want a 24-hour reminder and a 48-hour reminder, methinks.
@@ -159,6 +160,22 @@ function setReminders() {
   .then(data => {
     // console.log("data now be...", data);
     const current = moment().format('x');
+
+    // Test run:
+    // const mailOptions = {
+    //   from: 'zackstout@gmail.com',
+    //   to: 'zackstout@gmail.com',
+    //   subject: `Testing`,
+    //   html: `Ahoy! <p>On ${d.date}, we should have a gorgeous ${d.type}! Enjoy yourself!`
+    // };
+    //
+    // transporter.sendMail(mailOptions, function(error, info){
+    //   if (error) {
+    //     console.log(error);
+    //   } else {
+    //     console.log('Email sent: ' + info.response);
+    //   }
+    // });
 
     data.forEach(d => {
       const diff = d.timestamp - current;
@@ -171,7 +188,7 @@ function setReminders() {
           from: 'zackstout@gmail.com',
           to: 'zackstout@gmail.com',
           subject: `Astro (24-hour) Reminder for ${d.type}`,
-          html: `Ahoy! <p>On ${d.date}, we should have a gorgeous ${d.type}! Enjoy yourself!`
+          html: `Ahoy! <p>On ${d.date}, we should have a gorgeous ${d.type}! Enjoy yourself!</p>`
         };
 
         transporter.sendMail(mailOptions, function(error, info){
@@ -190,7 +207,7 @@ function setReminders() {
           from: 'zackstout@gmail.com',
           to: 'zackstout@gmail.com',
           subject: `Astro (48-hour) Reminder for ${d.type}`,
-          html: `Ahoy! <p>On ${d.date}, we should have a gorgeous ${d.type}! Enjoy yourself!`
+          html: `Ahoy! <p>On ${d.date}, we should have a gorgeous ${d.type}! Enjoy yourself!</p>`
         };
 
         transporter.sendMail(mailOptions, function(error, info){
@@ -205,9 +222,7 @@ function setReminders() {
   });
 }
 
-
-setReminders();
-
+// setReminders();
 
 app.listen(port, function (req, res) {
   console.log('Listening on port', port);
